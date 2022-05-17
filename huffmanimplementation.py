@@ -79,6 +79,18 @@ class Huffman(Tree):
         self.set_charlist(temp_chars_count)
         self.set_txt_file_data([tree1[0], chars_count])
         return [tree1[0], temp_chars_count]
+    
+    def inspect_tree(self, data): 
+        """this function should print the tree to help decode"""
+        if data[0].get_left():
+            if data[0].get_right(): #checking if left and right node are not None
 
+                print(" Left: " + str(data[0].get_left().get_mid()) + "Mid Node: " + str(data[0].get_mid()) +
+                        " Right: " + str(data[0].get_right().get_mid()))
+
+                self.inspect_tree([data[0].get_right()])
+                self.inspect_tree([data[0].get_left()])
+
+    
     
 
