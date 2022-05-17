@@ -79,7 +79,54 @@ class Huffman(Tree):
         self.set_charlist(temp_chars_count)
         self.set_txt_file_data([tree1[0], chars_count])
         return [tree1[0], temp_chars_count]
-    
+
+    def getkey(self, x):
+        """this function should return the int value of 
+        the node and must accomodate list and int values"""
+        #if type== int, returns int 
+        if type(x.get_mid()) == int: 
+            return x.get_mid()
+
+        #if type == list, returns frequency 
+        elif type(x.get_mid()) == list: 
+            return x.get_mid()[1] 
+
+    def traverse_tree(self, data, goesleft, goesright, value, letterlst): # recursive function 
+        """this function should iterate over the huffman tree and assign
+        0 to the left branches and 1 to the right branches of the tree recursively 
+        till we encounter a leaf node"""
+
+        if len(letterlst) == len(data[1]): return letterlst
+        if goesleft: value = value + '0' #if traversal goes left, add 0 to the string 
+        if goesright: value = value + '1' #if traversal goes right add 1 to the string
+
+        if type(data[0].get_mid()) == int:
+            if type(data[0].get_left().get_mid()) == list:
+                for i in data[1]:
+                    if i[0] == data[0].get_left().get_mid()[0]:
+                        if [i[0], str(value) + '0'] not in letterlst:
+                            letterlst.append([i[0], str(value) + '0'])
+                            
+            if type(data[0].get_right().get_mid()) == list:
+                for i in data[1]:
+                    if i[0] == data[0].get_right().get_mid()[0]:
+                        if [i[0], str(value) + '1'] not in letterlst:
+                            letterlst.append([i[0], str(value) + '1'])
+                             
+            if type(data[0].get_left().get_mid()) == list and type(data[0].get_right().get_mid()) == list:
+                for i in data[1]:
+                    if i[0] == data[0].get_left().get_mid()[0]:
+                        if [i[0], str(value) + '0'] not in letterlst:
+                            letterlst.append([i[0], str(value) + '0'])
+                            
+
+                    if i[0] == data[0].get_right().get_mid()[0]:
+                        if [i[0], str(value) + '1'] not in letterlst:
+                            letterlst.append([i[0], str(value) + '1'])
+                             
+            return self.traverse_tree([data[0].get_left(), data[1]], True, False, value, letterlst) or \
+                self.traverse_tree([data[0].get_right(), data[1]], False, True, value, letterlst)
+
     def inspect_tree(self, data): 
         """this function should print the tree to help decode"""
         if data[0].get_left():
@@ -90,9 +137,7 @@ class Huffman(Tree):
 
                 self.inspect_tree([data[0].get_right()])
                 self.inspect_tree([data[0].get_left()])
-                
-      
-    
+
     def encoded_data(self, text, listofcharacters): 
         """this function will convert all the letters
         to their respective codes and concatenate them
@@ -139,5 +184,11 @@ class Huffman(Tree):
             #append them to bytearray
             byte_array.append(int(byte, 2))
         return byte_array
+
+
+# h = Huffman()
+# h.encoding_txt_file('huff.txt', 'encoded.bin')
+# h.decode('encoded.bin', 'decoded')
+# h.inspect_tree(h.txt_file_data)
     
 
