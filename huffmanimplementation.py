@@ -90,7 +90,54 @@ class Huffman(Tree):
 
                 self.inspect_tree([data[0].get_right()])
                 self.inspect_tree([data[0].get_left()])
-
+                
+      
     
+    def encoded_data(self, text, listofcharacters): 
+        """this function will convert all the letters
+        to their respective codes and concatenate them
+        the output will be the concatenated result in string form"""  
+        #this will hold the result
+        str_encode = '' 
+        #iterating ove file characters
+        for char in text: 
+            #if the letter is in our assigned codes list then concatenate to result   
+            for i in listofcharacters:  
+                if char == i[0]:    
+                    str_encode += i[1]  
+        return str_encode
+
+    def add_extra_bits(self, compressedtext):
+        """format the encoded text in such a way that 
+        we can divide it into bytes for byte array"""
+        #finding out the length of extra bits
+        extra_bits = (8 - len(compressedtext)) % 8
+
+        #adding 0's to make it divisible by 8
+        for i in range(extra_bits):
+            compressedtext += "0"
+
+        #adding an extra bit at the start to make it divisble by 8
+        info = "{0:08b}".format(extra_bits)
+        compressedtext = info + compressedtext
+        self.set_encodedinfo(info)
+        return compressedtext
+
+    def get_byte_array(self, encode):
+        """encode the bytes in the form 
+        bytearray(b'\x00\x00\x00')"""
+        #recheck if the bits are divisible by 8, otherwiese error is here
+        if len(encode) % 8 != 0:
+            print("bits not divisible")
+        #initializing the byte array
+        byte_array = bytearray()
+
+        #iterate over ecode string with an iterator of 8
+        for i in range(0,len(encode), 8):
+            #store the 8 bits
+            byte = encode[i:i + 8]
+            #append them to bytearray
+            byte_array.append(int(byte, 2))
+        return byte_array
     
 
