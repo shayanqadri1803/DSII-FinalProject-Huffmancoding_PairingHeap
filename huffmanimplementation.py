@@ -186,9 +186,131 @@ class Huffman(Tree):
         return byte_array
 
 
+    def encoding_txt_file(self, txt_file, encodedfile):
+        """
+        this function creates the huffman tree by calling the appropriate function
+        and also assigns the binary code to each character of the tree, it should also
+        concatenate all the codes into a single string and write it to a new binary file 
+        in the form of a byte array. The output is the new binary encoded file
+
+        """
+        
+        with open(txt_file, 'r+') as txtfile: #reading file
+            with open(encodedfile, 'wb') as newtxtfile: #wb = write binary
+                #removing all the whitespaces from the file since this wont affect the content and will reduce size
+                strings = (txtfile.read()).rstrip()
+
+                #building the huffman binary tree
+                hufftree = self.create_huffman_tree(strings)
+                #assigning codes to each character
+                assign_codes = self.traverse_tree(hufftree, None, None, '', [])
+
+                # assigning the codes list to the object it self
+                self.set_charlist(assign_codes)
+                #assigning the huffman tree to object itself
+                self.set_huffmantree(hufftree)
+
+                #concatenating the of each character in the text file to binary(bytes) form
+                encoded_file = self.encoded_data(strings, assign_codes) 
+                # if the encoded file is not divisible by 8, add extra 0's at the start of the file to create byte array
+                fully_encoded_file = self.add_extra_bits(encoded_file)
+
+                # getting byte array of the form b'\x04\xc7\xab_\x17tW\xa9\x13\x98
+                byte_array = self.get_byte_array(fully_encoded_file)
+                #writing the byte array to the new binary file i.e. our encoded file
+                newtxtfile.write(byte_array)
+
+    def decompressing_binary_file(self, file_to_decode):
+        """This function takes input the binary file and reads
+        bytes one by one from byte array, converts each byte 
+        to bits and concatenates all of them.
+        Must remove all extra start and end bits to get the original file.
+        The output is a string of bits representing original file"""
+        with open(file_to_decode, 'rb') as inputfile: #rb = read binary file
+            #this variable will contain letters converted from bytes
+            bit_text = ""
+            #reading only 1 byte from the byte_array of our compressed or encoded file
+            compressed_char = inputfile.read(1)
+
+            #running a while loop till we reach the end of file
+            while compressed_char != b'':
+
+                #returning the number representing the unicode code of the byte 
+                print(compressed_char)
+                compressed_char = ord(compressed_char)
+                #returning the binary equivalent of the given character
+                bits = bin(compressed_char)
+                #print(bits)
+                #the binary number is of form "0b1110111" so removing the intial two characters i.e. "0b" to get bits only
+                bits=bits[2:]
+
+                #if the length of bits is not 8, add 0's at front
+                if len(bits)<8:
+                    for i in range(8-len(bits)):
+                        bits='0'+bits
+                
+                #concatenating each character's bits to a single string
+                bit_text += bits
+
+                #reading the next byte of the byte array
+                compressed_char = inputfile.read(1)
+
+            #converting the last byte into integer to remove the extra data we added while encoding
+            complete_data_and_info = bit_text[:8]
+            additional_end_bits = int(complete_data_and_info, 2)
+
+            #the full encoded data in bits excluding the first extra byte we added while encoding
+            without_initial_bits = bit_text[8:]
+
+            #getting the original file in bits without the extra data
+            decompressed_text = without_initial_bits[:-1*additional_end_bits]
+
+            #returning the original file in bits form
+            return decompressed_text
+
+    def decoding_decompressed_text(self, decompressed_txt, new_decoded_file):
+        """this function writes the decoded data to a new text file 
+        by iterating over all the bits and huffman tree till we encounter a
+        letter."""
+        #starting at the root of the tree
+        current_element = self.huffmantree[0]
+
+        #opening a new file to write back the data we encoded
+        with open(new_decoded_file, 'w') as decodedfile:
+
+            #taking the bit data and iterating bit by bit
+            for bit in decompressed_txt:
+                
+                #checking if we have reached the leaf node or not i.e our character
+                if type(current_element.get_mid())==int:
+
+                    #if our bit was 0 means we have to go left
+                    if int(bit) == 0:
+
+                        #our new current node will then be the left child
+                        current_element = current_element.get_left()
+                    
+                    #if our bit was 1 means we have to go right
+                    if int(bit) == 1:
+                        
+                        #our new current node will then be the right child
+                        current_element = current_element.get_right()
+
+                #if we are on the leaf node then assign the character of the laf node to the decoded data and write to new file
+                if type(current_element.get_mid())==list:
+
+                    decodedfile.write(current_element.get_mid()[0])
+                    #start again at the root of the node
+                    current_element = self.huffmantree[0]
+
+    def decode(self, encoded_file, output_file):
+        """decompress and decode the binary file here by calling 
+        appropriate functions"""
+        #calling the decompression and decoding functions here
+        decompressed = self.decompressing_binary_file(encoded_file)
+        self.decoding_decompressed_text(decompressed, output_file)
+
 # h = Huffman()
 # h.encoding_txt_file('huff.txt', 'encoded.bin')
 # h.decode('encoded.bin', 'decoded')
 # h.inspect_tree(h.txt_file_data)
-    
-
