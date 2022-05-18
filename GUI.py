@@ -28,14 +28,14 @@ def browseFiles():
       
 def members():
     root = Toplevel(window)
-    root.geometry('400x150') 
-    root.minsize(400, 150)
-    root.maxsize(400, 150)
+    root.geometry('400x200') 
+    root.minsize(400, 200)
+    root.maxsize(400, 200)
     root.title('Group Members')
     labelnames = Label(root, 
-                        text = 'Group Members: \n Ayesha Shaikh \n Dania Salman \n Haniya Khan \n Shafay Iqbal \n Shayan Qadri',
+                        text = 'Hope you enjoyed our project as much as we enjoyed making it! \n\n Group Members: \n Ayesha Shaikh \n Dania Salman \n Haniya Khan \n Shafay Iqbal \n Shayan Qadri',
                          
-                        width = 55, height = 6,
+                        width = 55, height = 10,
                         fg = 'blue'
                         ).place(x=5, y=15)
 
